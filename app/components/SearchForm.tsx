@@ -1,7 +1,9 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FormEvent } from "react";
+import { useState, FormEvent } from "react";
+import { toast } from "react-toastify";
+import clsx from "clsx";
 
 export type SearchType = "users" | "repos";
 
@@ -9,6 +11,9 @@ export default function SearchForm() {
   const { replace } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Adding extra error visualization
+  const [isError, setIsError] = useState(false);
 
   const defaultType = (searchParams.get("type") as SearchType) || "users";
   const defaultQuery = searchParams.get("q") || "";
@@ -20,11 +25,15 @@ export default function SearchForm() {
     const query = formData.get("query") as string;
 
     if (!/^[a-zA-Z0-9-_]+$/.test(query)) {
-      alert("Only letters, numbers, dashes, and underscores are allowed.");
+      setIsError(true);
+      toast.error(
+        "Please enter a valid search query. Only letters, numbers, dashes, and underscores are allowed."
+      );
       return;
     }
 
-    replace(`${pathname}?type=${type}&q=${encodeURIComponent(query)}`);
+    setIsError(false);
+    replace(`${pathname}?type=${type}&q=${encodeURIComponent(query.trim())}`);
   };
 
   return (
@@ -57,7 +66,14 @@ export default function SearchForm() {
           name="query"
           defaultValue={defaultQuery}
           placeholder="Search GitHub"
-          className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={clsx(
+            "flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2",
+            {
+              "border-red-500 focus:ring-red-500": isError,
+              "focus:ring-blue-500": !isError,
+            }
+          )}
+          onChange={() => setIsError(false)}
         />
         <button
           type="submit"
