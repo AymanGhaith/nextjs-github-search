@@ -1,4 +1,4 @@
-import SearchForm, { SearchType } from "./components/SearchForm";
+import SearchForm from "./components/SearchForm";
 import UserResults from "./components/UserResults";
 import RepoResults from "./components/RepoResults";
 
@@ -9,14 +9,13 @@ export default async function Home({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const type = searchParams.type as SearchType;
+  const type = (searchParams.type as "users" | "repos") || "users";
   const query = searchParams.q as string;
-  const page = Number(searchParams.page) || 1;
 
-  let searchResults = null;
+  let initialResults = null;
   if (query) {
     try {
-      searchResults = await searchGitHub(type, query, page);
+      initialResults = await searchGitHub(type, query);
     } catch (error) {
       console.error("Error fetching search results:", error);
       // Handle error (e.g., display error message to user)
@@ -27,11 +26,11 @@ export default async function Home({
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <h1 className="mb-8 text-4xl font-bold">GitHub Search</h1>
       <SearchForm />
-      {searchResults &&
+      {initialResults &&
         (type === "users" ? (
-          <UserResults results={searchResults} />
+          <UserResults initialResults={initialResults} query={query} />
         ) : (
-          <RepoResults results={searchResults} />
+          <RepoResults initialResults={initialResults} query={query} />
         ))}
     </main>
   );

@@ -1,7 +1,11 @@
-import { StarIcon } from "@heroicons/react/24/solid";
+"use client";
 
+import { useState } from "react";
+import { StarIcon } from "@heroicons/react/24/solid";
 import LanguageBadges from "./LanguageBadges";
 import RecentForks from "./RecentForks";
+import InfiniteScroll from "./InfiniteScroll";
+import { searchGitHub } from "../utils/github";
 
 interface Repo {
   id: number;
@@ -16,13 +20,39 @@ interface Repo {
 }
 
 interface RepoResultsProps {
-  results: {
+  initialResults: {
     items: Repo[];
     total_count: number;
   };
+  query: string;
 }
 
-export default function RepoResults({ results }: RepoResultsProps) {
+export default function RepoResults({
+  initialResults,
+  query,
+}: RepoResultsProps) {
+  const [results, setResults] = useState(initialResults);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const loadMore = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const nextPage = page + 1;
+      const newResults = await searchGitHub("repos", query, nextPage);
+      setResults((prevResults) => ({
+        ...prevResults,
+        items: [...prevResults.items, ...newResults.items],
+      }));
+      setPage(nextPage);
+    } catch (error) {
+      console.error("Error loading more results:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="mt-8 w-full max-w-4xl">
       <h2 className="text-2xl font-bold mb-4">
@@ -64,6 +94,11 @@ export default function RepoResults({ results }: RepoResultsProps) {
           </div>
         ))}
       </div>
+      <InfiniteScroll
+        loadMore={loadMore}
+        hasMore={results.items.length < results.total_count}
+      />
+      {loading && <p className="text-center mt-4">Loading more results...</p>}
     </div>
   );
 }

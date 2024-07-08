@@ -1,3 +1,9 @@
+"use client";
+
+import { useState } from "react";
+import InfiniteScroll from "./InfiniteScroll";
+import { searchGitHub } from "../utils/github";
+
 interface User {
   id: number;
   login: string;
@@ -6,13 +12,39 @@ interface User {
 }
 
 interface UserResultsProps {
-  results: {
+  initialResults: {
     items: User[];
     total_count: number;
   };
+  query: string;
 }
 
-export default function UserResults({ results }: UserResultsProps) {
+export default function UserResults({
+  initialResults,
+  query,
+}: UserResultsProps) {
+  const [results, setResults] = useState(initialResults);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const loadMore = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const nextPage = page + 1;
+      const newResults = await searchGitHub("repos", query, nextPage);
+      setResults((prevResults) => ({
+        ...prevResults,
+        items: [...prevResults.items, ...newResults.items],
+      }));
+      setPage(nextPage);
+    } catch (error) {
+      console.error("Error loading more results:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">
@@ -43,6 +75,11 @@ export default function UserResults({ results }: UserResultsProps) {
           </div>
         ))}
       </div>
+      <InfiniteScroll
+        loadMore={loadMore}
+        hasMore={results.items.length < results.total_count}
+      />
+      {loading && <p className="text-center mt-4">Loading more results...</p>}
     </div>
   );
 }
