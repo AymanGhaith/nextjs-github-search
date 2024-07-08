@@ -1,5 +1,7 @@
 import SearchForm, { SearchType } from "./components/SearchForm";
-import SearchResults from "./components/SearchResults";
+import UserResults from "./components/UserResults";
+import RepoResults from "./components/RepoResults";
+
 import { searchGitHub } from "./utils/github";
 
 export default async function Home({
@@ -15,7 +17,6 @@ export default async function Home({
   if (query) {
     try {
       searchResults = await searchGitHub(type, query, page);
-      console.log(searchResults.items.length);
     } catch (error) {
       console.error("Error fetching search results:", error);
       // Handle error (e.g., display error message to user)
@@ -26,7 +27,12 @@ export default async function Home({
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <h1 className="mb-8 text-4xl font-bold">GitHub Search</h1>
       <SearchForm />
-      {searchResults && <SearchResults results={searchResults} />}
+      {searchResults &&
+        (type === "users" ? (
+          <UserResults results={searchResults} />
+        ) : (
+          <RepoResults results={searchResults} />
+        ))}
     </main>
   );
 }

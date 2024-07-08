@@ -13,7 +13,7 @@ export default function SearchResults({ results }: SearchResultsProps) {
   return (
     <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">
-        Search Results for {results.type}: {results.query}
+        Users Search Results for {results.type}: {results.query}
       </h2>
       {/* TODO: Implement actual results loop */}
       <pre>{JSON.stringify(results, null, 2)}</pre>
