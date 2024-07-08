@@ -8,7 +8,7 @@ export async function searchGitHub(
   const endpoint = type === "users" ? "search/users" : "search/repositories";
   const url = `${GITHUB_API_URL}/${endpoint}?q=${encodeURIComponent(
     query
-  )}&page=${page}&per_page=5`;
+  )}&page=${page}&per_page=10`;
 
   const response = await fetch(url, {
     headers: {
