@@ -1,11 +1,6 @@
 import SearchForm, { SearchType } from "./components/SearchForm";
 import SearchResults from "./components/SearchResults";
-
-async function searchGitHub(type: SearchType, query: string) {
-  // TODO: Implement actual GitHub API call here
-  // For now, we'll return a dummy result
-  return { type, query, items: [] };
-}
+import { searchGitHub } from "./utils/github";
 
 export default async function Home({
   searchParams,
@@ -14,10 +9,17 @@ export default async function Home({
 }) {
   const type = searchParams.type as SearchType;
   const query = searchParams.q as string;
+  const page = Number(searchParams.page) || 1;
 
   let searchResults = null;
-  if (type && query) {
-    searchResults = await searchGitHub(type, query);
+  if (query) {
+    try {
+      searchResults = await searchGitHub(type, query, page);
+      console.log(searchResults.items.length);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      // Handle error (e.g., display error message to user)
+    }
   }
 
   return (
