@@ -24,10 +24,10 @@ export default function SearchForm() {
     const type = formData.get("searchType") as SearchType;
     const query = formData.get("query") as string;
 
-    if (!/^[a-zA-Z0-9-_]+$/.test(query)) {
+    if (!/^[a-zA-Z0-9-_ ]+$/.test(query.trim())) {
       setIsError(true);
       toast.error(
-        "Please enter a valid search query. Only letters, numbers, dashes, and underscores are allowed."
+        "Please enter a valid search query. Only letters, numbers, spaces, dashes, and underscores are allowed."
       );
       return;
     }
