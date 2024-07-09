@@ -51,7 +51,7 @@ export default function UserResults({
       <h2 className="text-2xl font-bold mb-4">
         Users Found: {results.total_count}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {results.items.map((user) => (
           <UserCard key={user.id} user={user} />
         ))}
