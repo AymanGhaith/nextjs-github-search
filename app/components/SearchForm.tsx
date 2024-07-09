@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useRef } from "react";
 import { toast } from "react-toastify";
 import clsx from "clsx";
 
@@ -12,8 +12,8 @@ export default function SearchForm() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Adding extra error visualization
   const [isError, setIsError] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const defaultType = (searchParams.get("type") as SearchType) || "users";
   const defaultQuery = searchParams.get("q") || "";
@@ -36,8 +36,16 @@ export default function SearchForm() {
     replace(`${pathname}?type=${type}&q=${encodeURIComponent(query.trim())}`);
   };
 
+  const handleClear = () => {
+    if (formRef.current) {
+      formRef.current.reset();
+      setIsError(false);
+      replace(pathname);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
       <div className="flex space-x-4">
         <label className="inline-flex items-center">
           <input
@@ -80,6 +88,13 @@ export default function SearchForm() {
           className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Search
+        </button>
+        <button
+          type="button"
+          onClick={handleClear}
+          className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        >
+          Clear
         </button>
       </div>
     </form>
