@@ -27,6 +27,7 @@ export default function UserResults({
   const [results, setResults] = useState(initialResults);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadMore = async () => {
     if (loading) return;
@@ -39,8 +40,14 @@ export default function UserResults({
         items: [...prevResults.items, ...newResults.items],
       }));
       setPage(nextPage);
+      setError(null);
     } catch (error) {
       console.error("Error loading more results:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An error occurred while loading results."
+      );
     } finally {
       setLoading(false);
     }
@@ -56,10 +63,13 @@ export default function UserResults({
           <UserCard key={user.id} user={user} />
         ))}
       </div>
-      <InfiniteScroll
-        loadMore={loadMore}
-        hasMore={results.items.length < results.total_count}
-      />
+      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {!error && (
+        <InfiniteScroll
+          loadMore={loadMore}
+          hasMore={results.items.length < results.total_count}
+        />
+      )}
       {loading && <p className="text-center mt-4">Loading more results...</p>}
     </div>
   );

@@ -5,6 +5,7 @@ import RepoResults from "./components/RepoResults";
 import { searchGitHub } from "./utils/github";
 import RepoResultsSkeleton from "./components/RepoResultsSkeleton";
 import UserResultsSkeleton from "./components/UserResultsSkeleton";
+import ErrorMessage from "./components/ErrorMessage";
 
 export default function Home({
   searchParams,
@@ -39,11 +40,28 @@ async function Results({
   query: string;
 }) {
   let initialResults = null;
+  let error = null;
+
   try {
     initialResults = await searchGitHub(type, query);
-  } catch (error) {
-    console.error("Error fetching search results:", error);
-    // Handle error (e.g., display error message to user)
+  } catch (err) {
+    console.error("Error fetching search results:", err);
+    error =
+      err instanceof Error
+        ? err.message
+        : "An error occurred while fetching results.";
+  }
+
+  if (error) {
+    return <ErrorMessage message={error} />;
+  }
+
+  if (!initialResults.total_count) {
+    return (
+      <div className="mt-8 w-full max-w-4xl">
+        <p>No results found.</p>
+      </div>
+    );
   }
 
   return type === "users" ? (
