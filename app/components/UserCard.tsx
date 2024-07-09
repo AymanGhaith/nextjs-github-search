@@ -17,15 +17,20 @@ export default function UserCard({ user }: UserCardProps) {
       <img
         src={user.avatar_url}
         alt={user.login}
-        className="w-16 h-16 rounded-full mr-4"
+        className="w-16 h-16 rounded-full mr-4 flex-shrink-0"
       />
-      <div>
-        <h3 className="font-bold text-xl text-blue-700">{user.login}</h3>
+      <div className="min-w-0 flex-1">
+        <h3
+          className="font-bold text-xl text-blue-700 truncate"
+          title={user.login}
+        >
+          {user.login}
+        </h3>
         <a
           href={user.html_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-500 hover:underline"
+          className="text-blue-500 hover:underline block truncate"
         >
           View Profile
         </a>
